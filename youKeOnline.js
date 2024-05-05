@@ -99,24 +99,21 @@
             // 触发页面的点击事件
             unfinishedVideoList[0].click();
             videoFn();
-            return;
           }
-          // 当前+1的小章节都没有的时候，意味着当前大章节已看完，这时候需要获取大章节的内容
-          if (!uncomplete[1]) {
-            currentUncomplete = 0;
-            bigUnfinishedList = getBigUnfinishedList();
-            bigUnfinishedList[0].click();
-            uncomplete = await getUnfinishedList();
-            if (uncomplete[0]) {
-              uncomplete[0].click();
-              // 等得页面获取新的视频列表
-              unfinishedVideoList = await getUnfinishedVideo();
-              // 触发页面的点击事件
-              unfinishedVideoList[0].click();
-              videoFn();
-            }
+        } else {
+          currentUncomplete = 0;
+          bigUnfinishedList = getBigUnfinishedList();
+          bigUnfinishedList[0].click();
+          uncomplete = await getUnfinishedList();
+          if (uncomplete[0]) {
+            uncomplete[0].click();
+            // 等得页面获取新的视频列表
+            unfinishedVideoList = await getUnfinishedVideo();
+            // 触发页面的点击事件
+            unfinishedVideoList[0].click();
+            videoFn();
           }
-          return;
+
         }
       }, 300)
     };
