@@ -117,6 +117,8 @@
         var filtered = Array.prototype.filter.call(elements, function (el) {
           return el.classList.length === 2;
         });
+        var currentVideoList = getCurrentVideoList();
+        filtered = Array.from(filtered).concat(Array.from(currentVideoList));
         var elementsWithoutAfter = [];
         for (var i = 0; i < filtered.length; i++) {
           var style = window.getComputedStyle(filtered[i], "::after");
@@ -131,6 +133,11 @@
         resolve(elementsWithoutAfter);
       }, 2000);
     });
+  }
+
+  function getCurrentVideoList() {
+    var _currentVideoList = document.querySelectorAll(".basic.ng-scope.active");
+    return _currentVideoList;
   }
 	setTimeout(myFunction, 3000);
 })();
