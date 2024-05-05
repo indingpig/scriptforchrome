@@ -13,15 +13,20 @@
 
 (function () {
   "use strict";
+  var current = 0;
+  var currentUncomplete = 0;
+  var unfinishedVideoList;
+  var bigUnfinishedList;
 
   async function myFunction() {
     // 打标
     markFuntion()
     // 当前播放
-    var current = 0;
-    var currentUncomplete = 0;
-    var unfinishedVideoList = await getUnfinishedVideo();
-    var bigUnfinishedList;
+    current = 0;
+    currentUncomplete = 0;
+    unfinishedVideoList = await getUnfinishedVideo();
+    bigUnfinishedList;
+    var currentVideo;
     if (unfinishedVideoList.length === 0) {
       // 当前小章节没有课程的时候，获取当前页面的未完成的小章节
       var uncomplete = await getUnfinishedList();
@@ -39,49 +44,12 @@
     if (unfinishedVideoList[current]) {
       // 播放第一个视频
       unfinishedVideoList[current].click();
-      var currentVideo = document.querySelector("video");
+      currentVideo = document.querySelector("video");
       videoFn();
       removeMarkFuntion(unfinishedVideoList[current]);
     }
 
-    currentVideo.onended = function () {
-      current++;
-      setTimeout(async () => {
-        if (unfinishedVideoList[current]) {
-          unfinishedVideoList[current].click();
-          videoFn();
-          return;
-        }
-        var uncomplete = await getUnfinishedList();
-        if (uncomplete.length > 0) {
-          currentUncomplete++;
-          if (uncomplete[0]) {
-            uncomplete[0].click();
-            // 等得页面获取新的视频列表
-            unfinishedVideoList = await getUnfinishedVideo();
-            // 触发页面的点击事件
-            unfinishedVideoList[0].click();
-            videoFn();
-          }
-          // 当前+1的小章节都没有的时候，意味着当前大章节已看完，这时候需要获取大章节的内容
-          if (!uncomplete[currentUncomplete]) {
-            currentUncomplete = 0;
-            bigUnfinishedList = getBigUnfinishedList();
-            bigUnfinishedList[0].click();
-            uncomplete = await getUnfinishedList();
-            if (uncomplete[0]) {
-              uncomplete[0].click();
-              // 等得页面获取新的视频列表
-              unfinishedVideoList = await getUnfinishedVideo();
-              // 触发页面的点击事件
-              unfinishedVideoList[0].click();
-              videoFn();
-            }
-          }
-          return;
-        }
-      }, 300)
-    };
+    addedned(currentVideo);
     var html = document.querySelector("html");
     // 添加鼠标移出事件
     html.addEventListener("mouseout", function () {
@@ -106,7 +74,54 @@
     }).catch((error) => {
       currentVideo.play()
     });
+    addedned(currentVideo);
   }
+
+  // 添加onended事件
+  function addedned(ele) {
+    if (!ele) return;
+    if (ele.onended) return;
+    ele.onended = function () {
+      current++;
+      setTimeout(async () => {
+        if (unfinishedVideoList[current]) {
+          unfinishedVideoList[current].click();
+          videoFn();
+          return;
+        }
+        var uncomplete = await getUnfinishedList();
+        if (uncomplete.length > 0) {
+          currentUncomplete++;
+          if (uncomplete[0]) {
+            uncomplete[0].click();
+            // 等得页面获取新的视频列表
+            unfinishedVideoList = await getUnfinishedVideo();
+            // 触发页面的点击事件
+            unfinishedVideoList[0].click();
+            videoFn();
+            return;
+          }
+          // 当前+1的小章节都没有的时候，意味着当前大章节已看完，这时候需要获取大章节的内容
+          if (!uncomplete[1]) {
+            currentUncomplete = 0;
+            bigUnfinishedList = getBigUnfinishedList();
+            bigUnfinishedList[0].click();
+            uncomplete = await getUnfinishedList();
+            if (uncomplete[0]) {
+              uncomplete[0].click();
+              // 等得页面获取新的视频列表
+              unfinishedVideoList = await getUnfinishedVideo();
+              // 触发页面的点击事件
+              unfinishedVideoList[0].click();
+              videoFn();
+            }
+          }
+          return;
+        }
+      }, 300)
+    };
+  }
+
   // 获取未完成的列表
   function getUnfinishedList() {
     return new Promise((resolve, reject) => {
