@@ -69,12 +69,12 @@
     currentVideo.autoplay = true;
     currentVideo.playsinline = true;
     currentVideo.playbackRate = 2;
+    addedned(currentVideo);
     var playPromise = currentVideo.play();
     playPromise.then(() => {
     }).catch((error) => {
       currentVideo.play()
     });
-    addedned(currentVideo);
   }
 
   // 添加onended事件
@@ -89,6 +89,7 @@
           videoFn();
           return;
         }
+        current = 0;
         var uncomplete = await getUnfinishedList();
         if (uncomplete.length > 0) {
           currentUncomplete++;
