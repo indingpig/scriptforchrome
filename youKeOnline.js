@@ -24,9 +24,17 @@
     var bigUnfinishedList;
     if (unfinishedVideoList.length === 0) {
       // 当前小章节没有课程的时候，获取当前页面的未完成的小章节
-      var uncomplete = getUnfinishedList();
-      uncomplete[0].click();
-      unfinishedVideoList = await getUnfinishedVideo();
+      var uncomplete = await getUnfinishedList();
+      if (uncomplete.length > 0) {
+        uncomplete[0].click();
+        unfinishedVideoList = await getUnfinishedVideo();
+      } else {
+        bigUnfinishedList = getBigUnfinishedList();
+        bigUnfinishedList[0].click();
+        uncomplete = await getUnfinishedList();
+        uncomplete[0].click();
+        unfinishedVideoList = await getUnfinishedVideo();
+      }
     }
     if (unfinishedVideoList[current]) {
       // 播放第一个视频
@@ -44,7 +52,7 @@
           videoFn();
           return;
         }
-        var uncomplete = getUnfinishedList();
+        var uncomplete = await getUnfinishedList();
         if (uncomplete.length > 0) {
           currentUncomplete++;
           if (uncomplete[0]) {
@@ -59,6 +67,16 @@
           if (!uncomplete[currentUncomplete]) {
             currentUncomplete = 0;
             bigUnfinishedList = getBigUnfinishedList();
+            bigUnfinishedList[0].click();
+            uncomplete = await getUnfinishedList();
+            if (uncomplete[0]) {
+              uncomplete[0].click();
+              // 等得页面获取新的视频列表
+              unfinishedVideoList = await getUnfinishedVideo();
+              // 触发页面的点击事件
+              unfinishedVideoList[0].click();
+              videoFn();
+            }
           }
           return;
         }
@@ -91,12 +109,16 @@
   }
   // 获取未完成的列表
   function getUnfinishedList() {
-    var uncomplete = document.querySelectorAll('.basic.uncomplete');
-    // 将大章节过滤掉
-    var filtered = Array.prototype.filter.call(uncomplete, function (el) {
-      return el.classList.length === 2;
-    });
-    return filtered;
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        var uncomplete = document.querySelectorAll('.basic.uncomplete');
+        // 将大章节过滤掉
+        var filtered = Array.prototype.filter.call(uncomplete, function (el) {
+          return el.classList.length === 2;
+        });
+        resolve(filtered);
+      }, 500);
+    })
   }
 
   // 打标函数
