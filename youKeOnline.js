@@ -16,7 +16,7 @@
 
   async function myFunction() {
     // 打标
-    getBigUnfinishedList()
+    markFuntion()
     // 当前播放
     var current = 0;
     var currentUncomplete = 0;
@@ -28,10 +28,13 @@
       uncomplete[0].click();
       unfinishedVideoList = await getUnfinishedVideo();
     }
-    // 播放第一个视频
-    unfinishedVideoList[current].click();
-    var currentVideo = document.querySelector("video");
-    videoFn();
+    if (unfinishedVideoList[current]) {
+      // 播放第一个视频
+      unfinishedVideoList[current].click();
+      var currentVideo = document.querySelector("video");
+      videoFn();
+      removeMarkFuntion(unfinishedVideoList[current]);
+    }
 
     currentVideo.onended = function () {
       current++;
@@ -103,6 +106,13 @@
       // 打上标记
       el.classList.add('targetviacustom')
     })
+  }
+
+  // 去掉标记
+  function removeMarkFuntion(currtentEl) {
+    // 父级
+    var parent = currtentEl.parentNode.parentNode.parentNode.parentNode
+    parent.querySelector('.targetviacustom.uncomplete').classList.remove('targetviacustom')
   }
 
   function getBigUnfinishedList() {
